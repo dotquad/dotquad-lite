@@ -7,8 +7,9 @@ How to use it, with troubleshooting: the [user guide](https://dotquad.app/apps/l
 ## What it shows
 
 - **My IP widget.** On the left, your public IP, the country's flag and where it appears to be, a VPN, Hosting or No VPN chip, and the network's owner and ASN. In the middle, a dotted world map with a pin where your IP appears: teal for an ordinary address, amber for a VPN or hosting address. On the right, your Mac's interface (Wi-Fi or Ethernet) with its local IP, the router and the DNS servers. The header copies the public IP, opens Look Up and opens the full lookup on dotquad.app. Beside another widget it shows the IP, the VPN dot and the local IP.
-- **Command Center tile.** Your IP as the tile's title, with a shield when it's a VPN. Press it for the map, the public IP and its status, then the local IP, the router and the DNS servers, each copyable.
+- **Command Center tile.** Your IP as the tile's title, with a shield when it's a VPN, or No internet while it's out. Press it for the map, the public IP and its status, then the local IP, the router and the DNS servers, each copyable.
 - **VPN live activity.** Off until you turn it on: while your VPN is on, a shield and the country your IP appears in stay in the island, like Now Playing, and a click opens My IP. It's a status, so Droppy's own activities, timers and downloads come first.
+- **Lock screen.** Off until you turn it on: a row on Droppy's lock screen with VPN on or No VPN and the country your IP appears in, or No internet while it's out. Your IP shows there only with a second switch, also off, since anyone near your screen can read it.
 - **No internet.** Off until you turn it on: an alert when Wi-Fi or Ethernet is connected but nothing loads, or a network wants you to sign in, then Back online; and a live activity while it's out. To check, Dotquad Lite asks captive.apple.com, the page macOS itself uses, after network changes and every 2 minutes (every 15 seconds while out). Nothing about you is sent. For a Mac that's fully offline, Droppy's own No internet HUD says so.
 - **Alerts.** Three switches in Dotquad Lite's settings, all off until you turn them on: when your public IP changes, when your VPN turns on or off, and when your Mac's local IP changes. A VPN counts when your Mac sends everything through it (read from the Mac, so it works with lookups off and with a VPN you run yourself) or when dotquad.app recognizes your public IP as a VPN's. **Show alerts as** picks how they appear, in Droppy's terms: a **HUD** shows in the island for a few seconds, like Caps Lock; a **notification** waits in Droppy's banners, with Copy and Open, and follows Focus and Show notifications. When Droppy can't show the one you picked, Dotquad Lite uses the other. **Show Test Alert** in settings checks that alerts can show.
 - **Look up on dotquad.app.** At the top of Dotquad Lite's settings page: type an IP, a domain or a link, then Look Up, Grade Domain or Check Link opens that tool on dotquad.app with it filled in. The network checkup and the VPN test are one click below. Search Droppy's Settings for "Grade a domain" or "Test my VPN" to get there, or press Look Up… on the tile. Nothing is looked up inside Droppy: these only open your browser.
@@ -36,6 +37,7 @@ Dotquad Lite sends nothing until you agree. The local half of the widget (local 
 - `clipboard-write`: for Copy.
 - `hud`: for alerts shown as a HUD in the island.
 - `notch-banner`: for alerts shown as a notification.
+- `lock-screen`: for the lock screen row, if you turn it on.
 
 ## License
 

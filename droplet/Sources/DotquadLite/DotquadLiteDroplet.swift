@@ -41,6 +41,8 @@ public final class DotquadLiteDroplet: NSObject, ObservableObject, Droplet, HUDP
     static let activityKey = "vpnActivity"
     static let alertInternetKey = "alertNoInternet"
     static let internetActivityKey = "internetActivity"
+    static let lockScreenKey = "lockScreen"
+    static let lockScreenIPKey = "lockScreenIP"
 
     private(set) var host: DropletHost?
     private let client = LiteClient(version: DotquadLiteDroplet.version)
@@ -65,6 +67,8 @@ public final class DotquadLiteDroplet: NSObject, ObservableObject, Droplet, HUDP
     private var visibleViews = 0
     /// The live activity's state, for `liveActivityState`.
     let activitySubject = CurrentValueSubject<LiveActivityState?, Never>(nil)
+    /// The lock screen row, for `lockScreenStatus`.
+    let lockScreenSubject = CurrentValueSubject<LockScreenStatusEntry?, Never>(nil)
     /// What Droppy last said about the live activity: "compact",
     /// "secondary", or the reason it isn't showing. For Settings.
     @Published var activitySeat: String?
@@ -113,6 +117,7 @@ public final class DotquadLiteDroplet: NSObject, ObservableObject, Droplet, HUDP
 
     public func deactivate() {
         activitySubject.send(nil)
+        lockScreenSubject.send(nil)
         inFlight?.cancel()
         inFlight = nil
         networkTask?.cancel()

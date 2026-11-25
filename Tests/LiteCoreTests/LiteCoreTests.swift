@@ -413,3 +413,24 @@ private let sample = LiteMe(
         #expect(HandOff.guide("alerts").absoluteString == "https://dotquad.app/apps/lite/?from=lite#alerts")
     }
 }
+
+@Suite struct LockScreen {
+    @Test func vpnAndCountry() {
+        let on = LockScreenText.line(vpnOn: true, connectivity: .online, country: "nl", ip: "203.0.113.7", showIP: false)
+        #expect(on == LockLine(symbol: "lock.shield.fill", text: "VPN on", detail: "NL", center: "NL", bottom: "VPN on"))
+        let off = LockScreenText.line(vpnOn: false, connectivity: nil, country: nil, ip: nil, showIP: false)
+        #expect(off.text == "No VPN" && off.detail == nil && off.center == nil)
+    }
+
+    @Test func ipOnlyWhenAsked() {
+        #expect(LockScreenText.line(vpnOn: true, connectivity: nil, country: "NL", ip: "203.0.113.7", showIP: true).detail == "203.0.113.7")
+        #expect(LockScreenText.line(vpnOn: true, connectivity: nil, country: "NL", ip: "203.0.113.7", showIP: false).detail == "NL")
+    }
+
+    @Test func internetFirst() {
+        #expect(LockScreenText.line(vpnOn: true, connectivity: .noInternet, country: "NL", ip: nil, showIP: false).text == "No internet")
+        #expect(LockScreenText.line(vpnOn: true, connectivity: .offline, country: "NL", ip: nil, showIP: false).symbol == "wifi.slash")
+        #expect(LockScreenText.line(vpnOn: false, connectivity: .signIn, country: nil, ip: nil, showIP: false).bottom == "Sign in")
+    }
+}
+

@@ -103,6 +103,12 @@ public enum LiteText {
         }
     }
 
+    public static let lockScreenNote =
+        "A row on Droppy's lock screen: VPN on or No VPN and the country your IP appears in, or No internet when it's out. Your IP stays off it unless you turn it on below."
+
+    public static let lockScreenIPNote =
+        "Shows your public IP on the lock screen instead of the country. Anyone who can see your screen can read it. Needs \"Look up my public IP\"."
+
     public static let internetAlertNote =
         "When Wi-Fi or Ethernet is connected but nothing loads, or a network wants you to sign in, and Back online when it works again. To check, Dotquad Lite asks captive.apple.com, the page macOS itself asks, after network changes and every 2 minutes; nothing about you is sent. For a Mac that's fully offline, turn on No internet in Droppy's Live Activities settings."
 
