@@ -115,7 +115,42 @@ private struct MyIPWidget: View {
 
     // MARK: Alone
 
+    /// Whether the card is much taller than the shelf's, as a large Command
+    /// Center card is. Then the map goes on top, the public IP under it and
+    /// this Mac's side under that, each at full width.
+    private var isTall: Bool {
+        (layout?.contentSize.height ?? 0) > MyIPSize.singleHeight * 1.5
+    }
+
+    @ViewBuilder
     private var single: some View {
+        if isTall { tall } else { wide }
+    }
+
+    private var tall: some View {
+        let size = layout?.contentSize ?? CGSize(width: MyIPSize.singleWidth, height: MyIPSize.singleHeight * 2)
+        let aspect = CGFloat(WorldDots.rows.count) / CGFloat(WorldDots.columns)
+        let mapH = min(size.height * 0.36, size.width * aspect)
+        return VStack(alignment: .leading, spacing: DroppySpacing.md) {
+            DotMap(
+                me: shownResult,
+                ink: layout?.foreground ?? AdaptiveColors.notchSurfacePrimaryText,
+                inkOpacity: shownResult == nil ? 0.14 : 0.26
+            )
+            .frame(width: mapH / aspect, height: mapH)
+            .frame(maxWidth: .infinity)
+            publicColumn
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Rectangle()
+                .fill(AdaptiveColors.notchSurfaceTertiaryText.opacity(0.35))
+                .frame(height: 1)
+            localColumn
+                .frame(maxWidth: .infinity)
+        }
+        .frame(maxHeight: .infinity, alignment: .center)
+    }
+
+    private var wide: some View {
         HStack(alignment: .center, spacing: DroppySpacing.md) {
             publicColumn
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -218,7 +253,55 @@ private struct MyIPWidget: View {
 
     // MARK: Beside another widget
 
+    /// Whether a narrow card has far more height than the shelf gives, as a
+    /// Command Center card does. Then the map and the place join the IP.
+    private var isRoomySplit: Bool {
+        (layout?.contentSize.height ?? 0) > MyIPSize.splitHeight * 1.4
+    }
+
+    @ViewBuilder
     private var split: some View {
+        if isRoomySplit { roomySplit } else { compactSplit }
+    }
+
+    private var roomySplit: some View {
+        let size = layout?.contentSize ?? CGSize(width: MyIPSize.splitWidth, height: MyIPSize.splitHeight * 2)
+        let aspect = CGFloat(WorldDots.rows.count) / CGFloat(WorldDots.columns)
+        let mapH = min(size.height * 0.4, size.width * aspect)
+        return VStack(alignment: .leading, spacing: DroppySpacing.sm) {
+            DotMap(
+                me: shownResult,
+                ink: layout?.foreground ?? AdaptiveColors.notchSurfacePrimaryText,
+                inkOpacity: shownResult == nil ? 0.14 : 0.26
+            )
+            .frame(width: mapH / aspect, height: mapH)
+            .frame(maxWidth: .infinity)
+            if let me = shownResult {
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: DroppySpacing.xsm) {
+                        VPNDot(me: me)
+                        IPFigure(text: me.ip, size: metrics.figureTextSize)
+                    }
+                    HStack(spacing: DroppySpacing.xsm) {
+                        if let place = LiteText.shortPlace(me) {
+                            placeText([LiteText.flag(me.country), place])
+                        }
+                        StatusChip(me: me, size: metrics.captionTextSize)
+                    }
+                    if let local = droplet.localNetwork {
+                        Text(droplet.staleNote ?? "\(local.kind ?? local.interface) · \(local.address ?? "no address")")
+                            .droppyWidgetText(.caption)
+                            .lineLimit(1)
+                    }
+                }
+            } else {
+                compactSplit
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+    }
+
+    private var compactSplit: some View {
         VStack(alignment: .leading, spacing: 2) {
             if let me = shownResult {
                 HStack(spacing: DroppySpacing.xsm) {
