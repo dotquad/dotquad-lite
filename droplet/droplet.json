@@ -36,7 +36,8 @@
     "name": "Dotquad",
     "kind": "community",
     "url": "https://dotquad.app",
-    "avatar": "Creator.png"
+    "avatar": "Creator.png",
+    "gitlab": "binarynoir"
   },
   "source": {
     "repository": "https://gitlab.com/droppyformac1/droplets/-/tree/main/droplets/dotquad-lite",
