@@ -24,9 +24,9 @@ import DroppyKit
 
 enum LookUpSize {
     static let singleWidth: CGFloat = 560
-    static let singleHeight: CGFloat = 100
+    static let singleHeight: CGFloat = 112
     static let splitWidth: CGFloat = 210
-    static let splitHeight: CGFloat = 76
+    static let splitHeight: CGFloat = 96
 }
 
 extension DotquadLiteDroplet {
@@ -117,31 +117,68 @@ struct LookUpWidget: View {
     private var single: some View {
         VStack(alignment: .leading, spacing: DroppySpacing.sm) {
             field
-            HStack(spacing: DroppySpacing.sm) {
-                Button("Look Up", systemImage: "magnifyingglass") { go(lookupURL) }
-                    .buttonStyle(DroppyWashButtonStyle(tone: .accent(LiteColor.signal)))
-                    .disabled(lookupURL == nil)
-                Button("Grade Domain", systemImage: "checkmark.seal") { go(gradeURL) }
-                    .disabled(gradeURL == nil)
-                Button("Check Link", systemImage: "link") { go(linkURL) }
-                    .disabled(linkURL == nil)
-                Spacer(minLength: 0)
-                if !trimmed.isEmpty && best == nil {
-                    Text("Enter an IP, a domain or a link")
-                        .droppyWidgetText(.caption)
-                        .lineLimit(1)
-                }
+            // Row-sized pills (28), not the 34 a lone control gets. When the
+            // labels don't fit the width Droppy gives, the icons stay.
+            ViewThatFits(in: .horizontal) {
+                toolRow(labelled: true)
+                toolRow(labelled: false)
+            }
+            .droppyWashControlSize(28)
+        }
+        .frame(maxHeight: .infinity, alignment: .center)
+    }
+
+    private func toolRow(labelled: Bool) -> some View {
+        HStack(spacing: DroppySpacing.sm) {
+            tool("Look Up", "magnifyingglass", lookupURL, labelled: labelled)
+                .buttonStyle(DroppyWashButtonStyle(tone: .accent(LiteColor.signal), size: 28))
+            tool("Grade Domain", "checkmark.seal", gradeURL, labelled: labelled)
+            tool("Check Link", "link", linkURL, labelled: labelled)
+            Spacer(minLength: 0)
+            if labelled && !trimmed.isEmpty && best == nil {
+                Text("Enter an IP, a domain or a link")
+                    .droppyWidgetText(.caption)
+                    .lineLimit(1)
             }
         }
+    }
+
+    @ViewBuilder
+    private func tool(_ title: String, _ symbol: String, _ url: URL?, labelled: Bool) -> some View {
+        Button { go(url) } label: {
+            if labelled {
+                Label(title, systemImage: symbol).lineLimit(1).fixedSize()
+            } else {
+                Image(systemName: symbol)
+            }
+        }
+        .disabled(url == nil)
+        .help(title)
+        .accessibilityLabel(title)
+    }
+
+    /// A narrow card with far more height than the shelf gives (a Command
+    /// Center card) also gets the checkup and VPN test, which the header
+    /// has no room for there.
+    private var isRoomySplit: Bool {
+        (layout?.contentSize.height ?? 0) > LookUpSize.splitHeight * 1.3
     }
 
     private var split: some View {
         VStack(alignment: .leading, spacing: DroppySpacing.sm) {
             field
             Button("Look Up", systemImage: "magnifyingglass") { go(best) }
-                .buttonStyle(DroppyWashButtonStyle(tone: .accent(LiteColor.signal)))
+                .buttonStyle(DroppyWashButtonStyle(tone: .accent(LiteColor.signal), size: 28))
                 .disabled(best == nil)
+            if isRoomySplit {
+                HStack(spacing: DroppySpacing.sm) {
+                    tool("Checkup", "stethoscope", HandOff.checkup, labelled: true)
+                    tool("VPN Test", "lock.shield", HandOff.vpnTest, labelled: true)
+                }
+                .droppyWashControlSize(28)
+            }
         }
+        .frame(maxHeight: .infinity, alignment: .center)
     }
 
     private func go(_ url: URL?) {
