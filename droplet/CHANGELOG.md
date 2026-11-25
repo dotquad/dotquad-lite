@@ -7,5 +7,5 @@
 - A VPN live activity, off until you turn it on: while your VPN is on, a shield and the country your IP appears in stay in the island.
 - No internet, off until you turn it on: an alert when you're connected but nothing loads or a network wants a sign-in, Back online when it returns, and a live activity while it's out. Plain offline is left to Droppy's own No internet HUD.
 - A lock screen row, off until you turn it on: VPN on or No VPN and your country, or No internet. Your IP only with a second switch.
-- Look up an IP, domain or link on dotquad.app from Dotquad Lite's settings page.
+- A Look Up widget: type an IP, a domain or a link and it opens the right tool on dotquad.app, with buttons for the network checkup and the VPN test. ⌃⌥D opens it from anywhere.
 - Public lookups are off until you turn them on, and ask dotquad.app only while the widget or tile is on screen, at most once every 5 minutes. Local details are read from your Mac and never sent.

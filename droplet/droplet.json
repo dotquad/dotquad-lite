@@ -16,13 +16,17 @@
     "clipboard-write",
     "notch-banner",
     "hud",
-    "lock-screen"
+    "lock-screen",
+    "global-shortcuts",
+    "shelf-write"
   ],
   "capabilityReasons": {
     "network-client": "Sends your public IP to dotquad.app to look up its location and network, after you turn lookups on. With a No internet switch on, asks captive.apple.com, the page macOS uses, whether the internet works.",
     "menu-bar": "Shows your IP and VPN status as a Command Center tile.",
     "clipboard-write": "Copies your IP when you press Copy.",
     "notch-banner": "Shows alerts as a notification, if you choose that or the island is busy, and only if you turn alerts on.",
+    "global-shortcuts": "A shortcut, ⌃⌥D unless you change it, that opens the Look Up widget from anywhere.",
+    "shelf-write": "Opens the shelf on the Look Up widget when you press its shortcut or a Look Up button.",
     "lock-screen": "Shows VPN on or off and your country on Droppy's lock screen, if you turn it on.",
     "hud": "Shows alerts as a HUD in the island when your public or local IP changes, or your VPN turns on or off, if you turn those alerts on."
   },

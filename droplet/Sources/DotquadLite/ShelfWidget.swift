@@ -45,12 +45,14 @@ extension DotquadLiteDroplet: ShelfWidgetCompositionProviding {
                     header: .standard
                 ),
                 searchKeywords: ["ip", "public ip", "local ip", "router", "dns", "vpn", "location", "network", "asn", "dotquad"]
-            )
+            ),
+            lookUpDescriptor,
         ]
     }
 
     public func makeWidgetContent(_ id: ShelfWidgetID, layout: ShelfWidgetLayout) -> AnyView {
-        AnyView(MyIPWidget(droplet: self, isPreview: layout.isPreview))
+        if id == Self.lookUpWidgetID { return AnyView(LookUpWidget(droplet: self)) }
+        return AnyView(MyIPWidget(droplet: self, isPreview: layout.isPreview))
     }
 }
 

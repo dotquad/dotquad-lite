@@ -109,6 +109,7 @@ public final class DotquadLiteDroplet: NSObject, ObservableObject, Droplet, HUDP
         }
         startPathMonitor()
         startInternetWatch()
+        registerLookUpShortcut()
         refreshLocalNetwork()
         // With public alerts on, a first answer to compare the next one with.
         if watchesPublic { refreshIfAllowed() }
@@ -597,8 +598,9 @@ public final class DotquadLiteDroplet: NSObject, ObservableObject, Droplet, HUDP
     }
 
     /// The website tools, from the Command Center tile.
+    /// The Look Up widget, from the tile and the My IP widget.
     func openLookUp() {
-        host?.workspace.openSettings()
+        showLookUp()
     }
 
     /// What the widget and tile show under the answer when the last request failed.

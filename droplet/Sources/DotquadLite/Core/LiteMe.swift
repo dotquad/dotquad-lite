@@ -103,6 +103,9 @@ public enum LiteText {
         }
     }
 
+    public static let lookUpNote =
+        "Add the Look Up widget to Droppy's shelf: type an IP, a domain or a link, and it opens the right tool on dotquad.app. It also has the network checkup and the VPN test. Press ⌃⌥D from anywhere to open it, or set your own shortcut."
+
     public static let lockScreenNote =
         "A row on Droppy's lock screen: VPN on or No VPN and the country your IP appears in, or No internet when it's out. Your IP stays off it unless you turn it on below."
 
