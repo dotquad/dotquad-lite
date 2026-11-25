@@ -1,0 +1,51 @@
+{
+  "id": "dotquad-lite",
+  "name": "Dotquad Lite",
+  "version": "1.0.0",
+  "summary": "Your public IP, where it appears, and if it's a VPN",
+  "description": "Dotquad Lite shows your Mac's public IP on the shelf: where it appears to be, the network that owns it, and whether it's a VPN or hosting address. Copy the IP with one click, or open it on dotquad.app for the full lookup.\n\nIt adds a Command Center tile with your IP and a VPN dot, and two tools for AI apps through Droppy's MCP server: my_public_ip and am_i_on_vpn.\n\nNothing is sent until you turn lookups on. After that, Dotquad Lite asks dotquad.app only while the widget or tile is on screen, at most once every 5 minutes and once after the network changes. Nothing about you is stored, on your Mac or on the server, beyond a count of requests.",
+  "category": "system",
+  "kit": {
+    "abi": 1,
+    "minAPI": "1.23.0"
+  },
+  "minAppVersion": "16.2.2",
+  "capabilities": [
+    "network-client",
+    "menu-bar",
+    "clipboard-write",
+    "notch-banner"
+  ],
+  "capabilityReasons": {
+    "network-client": "Sends your public IP to dotquad.app to look up its location and network, after you turn lookups on.",
+    "menu-bar": "Shows your IP and VPN status as a Command Center tile.",
+    "clipboard-write": "Copies your IP when you press Copy.",
+    "notch-banner": "Shows a banner when your public or local IP changes, or your VPN turns off or on, if you turn those alerts on."
+  },
+  "surfaces": [
+    "shelf-widget",
+    "menu-bar-extra",
+    "settings-pane"
+  ],
+  "icon": "DotquadLite.icon",
+  "creator": {
+    "name": "Dotquad",
+    "kind": "community",
+    "url": "https://dotquad.app",
+    "avatar": "Creator.png"
+  },
+  "source": {
+    "repository": "https://gitlab.com/droppyformac1/droplets/-/tree/main/droplets/dotquad-lite",
+    "license": "MIT"
+  },
+  "keywords": [
+    "ip",
+    "public ip",
+    "my ip",
+    "vpn",
+    "location",
+    "network",
+    "asn",
+    "dotquad"
+  ]
+}
