@@ -2,7 +2,8 @@
 //  CommandCenterTile.swift
 //  DotquadLite
 //
-//  The Command Center tile: the IP as its title and a shield when it's a VPN.
+//  The Command Center tile: the IP as its title and a shield when it's a VPN,
+//  or "No internet" while it's out.
 //  Pressing it opens the public IP with its status, then the local network:
 //  the interface and local IP, the router and the DNS servers.
 //
@@ -13,8 +14,17 @@ import DroppyKit
 extension DotquadLiteDroplet: MenuBarExtraProviding {
     public func makeMenuBarExtra() -> MenuBarExtraDescriptor? {
         let me = lookupsOn ? result : nil
-        let symbol = me?.vpn == true ? "lock.shield" : "network"
-        return MenuBarExtraDescriptor(title: me?.ip ?? "My IP", systemImage: symbol) { [weak self] in
+        // The title and symbol are the tile's live state. The internet being
+        // out comes first (when a No internet switch is on), then the VPN, as
+        // in the live activity: from the Mac's tunnel or dotquad.app's flag.
+        let title: String
+        let symbol: String
+        switch connectivity {
+        case .offline?: (title, symbol) = ("Offline", "wifi.slash")
+        case .noInternet?, .signIn?: (title, symbol) = ("No internet", "wifi.exclamationmark")
+        default: (title, symbol) = (me?.ip ?? "My IP", vpnIsOn ? "lock.shield" : "network")
+        }
+        return MenuBarExtraDescriptor(title: title, systemImage: symbol) { [weak self] in
             guard let self else { return AnyView(EmptyView()) }
             return AnyView(MyIPTileContent(droplet: self))
         }

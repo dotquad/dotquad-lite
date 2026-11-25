@@ -41,6 +41,7 @@ extension DotquadLiteDroplet: SettingsPaneProviding {
             SettingsSearchEntry(title: "Alert when I'm connected but there's no internet", keywords: ["no internet", "offline", "wifi", "captive", "sign in", "dotquad"]),
             SettingsSearchEntry(title: "Show No internet as a live activity", keywords: ["no internet", "offline", "live activity", "island", "dotquad"]),
             SettingsSearchEntry(title: "User guide", keywords: ["help", "guide", "how to", "troubleshooting", "dotquad"]),
+            SettingsSearchEntry(title: "Show my VPN on the lock screen", keywords: ["lock screen", "locked", "vpn", "dotquad"]),
             SettingsSearchEntry(title: "Show alerts as", keywords: ["hud", "notification", "banner", "island", "alert", "dotquad"]),
         ]
     }
@@ -227,6 +228,24 @@ private struct DotquadLiteSettings: View {
                             .fixedSize(horizontal: false, vertical: true)
                         }
                     }
+                }
+            }
+
+            DropletSettingsSection {
+                settingsSectionHeader("Lock screen")
+            } content: {
+                DropletSettingsCard {
+                    DropletToggleRow(
+                        title: "Show my VPN on the lock screen",
+                        subtitle: LiteText.lockScreenNote,
+                        isOn: droplet.lockScreenOnBinding
+                    )
+                    DropletToggleRow(
+                        title: "Include my IP",
+                        subtitle: LiteText.lockScreenIPNote,
+                        isOn: droplet.lockScreenIPBinding
+                    )
+                    .disabled(!droplet.lockScreenOn || !droplet.lookupsOn)
                 }
             }
 

@@ -80,6 +80,8 @@ extension DotquadLiteDroplet: LiveActivityProviding {
     /// while a topic is up: what changes (the place, the time out) is drawn by
     /// the views, so the row never re-arbitrates.
     func updateActivity() {
+        // The lock screen row says the same things, so it follows along.
+        updateLockScreen()
         let state: LiveActivityState?
         switch activityTopic {
         case .vpn?:
