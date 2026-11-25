@@ -52,6 +52,16 @@ public enum HandOff {
         return url("/link-check/", [URLQueryItem(name: "q", value: text)])
     }
 
+    /// What Return opens in the Look Up widget: the IP lookup for an IP,
+    /// the link checker for anything with a scheme or a path, the report
+    /// card for a domain. Nil when it's none of those.
+    public static func best(_ input: String) -> URL? {
+        let text = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        if isIPAddress(text) { return ipLookup(text) }
+        if text.contains("://") || text.contains("/") { return linkCheck(text) }
+        return grade(text)
+    }
+
     public static var checkup: URL { url("/checkup/", []) }
     public static var vpnTest: URL { url("/vpn-test/", []) }
 

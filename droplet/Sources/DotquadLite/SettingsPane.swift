@@ -4,14 +4,11 @@
 //
 //  Dotquad Lite's page in Droppy's Settings:
 //
-//  - Look up on dotquad.app: a field and buttons that open the website
-//    tools with the input filled in. First, because a search result opens
-//    the page at its top. Each tool has a search entry, so typing "Grade a
-//    domain" in Droppy's search finds it. Nothing about the input is shown
-//    here or sent anywhere but the browser.
-//  - The opt-in switch and a link to dotquad.app.
-//  - Alerts, as a HUD or a notification: when the public IP changes, when the VPN turns on or
-//    off, and when the local IP changes. All off until turned on.
+//  - Look up on dotquad.app: how to use the Look Up widget, with buttons to
+//    open it and change its shortcut. The field itself lives in the widget.
+//  - The opt-in switch, a link to dotquad.app and the user guide.
+//  - Alerts, as a HUD or a notification, and the test.
+//  - Live activities, and the lock screen row.
 //  - The privacy note.
 //
 //  Droppy draws the page header (icon, name, summary), so this doesn't
@@ -28,11 +25,7 @@ extension DotquadLiteDroplet: SettingsPaneProviding {
 
     public var settingsSearchEntries: [SettingsSearchEntry] {
         [
-            SettingsSearchEntry(title: "Look up on dotquad.app", keywords: ["ip", "domain", "lookup", "dns", "dotquad"]),
-            SettingsSearchEntry(title: "Grade a domain", keywords: ["domain", "check", "email", "tls", "dns", "dotquad"]),
-            SettingsSearchEntry(title: "Is this link safe?", keywords: ["link", "url", "phishing", "safe", "dotquad"]),
-            SettingsSearchEntry(title: "Run a network checkup", keywords: ["network", "checkup", "dns", "ipv6", "dotquad"]),
-            SettingsSearchEntry(title: "Test my VPN", keywords: ["vpn", "leak", "webrtc", "dns leak", "dotquad"]),
+            SettingsSearchEntry(title: "Open Look Up", keywords: ["look up", "lookup", "domain", "link", "checkup", "vpn test", "shortcut", "dotquad"]),
             SettingsSearchEntry(title: "Look up my public IP", keywords: ["ip", "vpn", "privacy", "dotquad"]),
             SettingsSearchEntry(title: "Alert when my public IP changes", keywords: ["alert", "notify", "ip change", "dotquad"]),
             SettingsSearchEntry(title: "Alert when my VPN turns on or off", keywords: ["alert", "notify", "vpn", "vpn off", "vpn drop", "kill switch", "dotquad"]),
@@ -49,12 +42,6 @@ extension DotquadLiteDroplet: SettingsPaneProviding {
 
 private struct DotquadLiteSettings: View {
     @ObservedObject var droplet: DotquadLiteDroplet
-    @State private var input = ""
-
-    private var trimmed: String { input.trimmingCharacters(in: .whitespacesAndNewlines) }
-    private var lookupURL: URL? { HandOff.lookup(trimmed) }
-    private var gradeURL: URL? { HandOff.grade(trimmed) }
-    private var linkURL: URL? { HandOff.linkCheck(trimmed) }
 
     var body: some View {
         DropletSettingsPane {
@@ -62,42 +49,19 @@ private struct DotquadLiteSettings: View {
                 settingsSectionHeader("Look up on dotquad.app")
             } content: {
                 DropletSettingsCard {
-                    DropletStackedRow(
-                        title: "IP address, domain or link",
-                        infoTip: "Opens the website tool in your browser with this filled in. Dotquad Lite shows no results itself."
-                    ) {
-                        VStack(alignment: .leading, spacing: DroppySpacing.sm) {
-                            TextField(text: $input, prompt: Text("203.0.113.7, example.com or a link")) {
-                                Text("IP address, domain or link")
-                            }
-                                .labelsHidden()
-                                .textFieldStyle(.roundedBorder)
-                                .autocorrectionDisabled()
-                                .onSubmit(openBest)
-                            HStack(spacing: DroppySpacing.sm) {
-                                Button("Look Up") { open(lookupURL) }
-                                    .disabled(lookupURL == nil)
-                                    .keyboardShortcut(.defaultAction)
-                                Button("Grade Domain") { open(gradeURL) }
-                                    .disabled(gradeURL == nil)
-                                Button("Check Link") { open(linkURL) }
-                                    .disabled(linkURL == nil)
-                            }
-                            .buttonStyle(.bordered)
-                            if !trimmed.isEmpty && lookupURL == nil && gradeURL == nil && linkURL == nil {
-                                Text("Enter an IP address, a domain or a link.")
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(AdaptiveColors.secondaryTextAuto)
-                            }
+                    DropletStackedRow(title: "The Look Up widget") {
+                        Text(LiteText.lookUpNote)
+                            .font(.system(size: 12))
+                            .foregroundStyle(AdaptiveColors.secondaryTextAuto)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    DropletControlRow(title: "Look Up") {
+                        HStack(spacing: 8) {
+                            Button("Change Shortcut") { droplet.host?.workspace.openShortcuts() }
+                                .buttonStyle(.bordered)
+                            Button("Open Look Up") { droplet.showLookUp() }
+                                .buttonStyle(.bordered)
                         }
-                    }
-                    DropletControlRow(title: "Run a network checkup") {
-                        Button("Open") { open(HandOff.checkup) }
-                            .buttonStyle(.bordered)
-                    }
-                    DropletControlRow(title: "Test my VPN") {
-                        Button("Open") { open(HandOff.vpnTest) }
-                            .buttonStyle(.bordered)
                     }
                 }
             }
@@ -262,20 +226,5 @@ private struct DotquadLiteSettings: View {
                 }
             }
         }
-    }
-
-    /// Return opens the tool that fits: an IP or domain opens the lookup,
-    /// a link with a path or scheme opens the link checker.
-    private func openBest() {
-        if trimmed.contains("://") || trimmed.contains("/") {
-            open(linkURL ?? lookupURL)
-        } else {
-            open(lookupURL ?? linkURL)
-        }
-    }
-
-    private func open(_ url: URL?) {
-        guard let url else { return }
-        droplet.open(url)
     }
 }

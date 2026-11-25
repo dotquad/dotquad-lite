@@ -434,3 +434,14 @@ private let sample = LiteMe(
     }
 }
 
+@Suite struct BestLookUp {
+    @Test func picksTheTool() {
+        #expect(HandOff.best(" 203.0.113.7 ")?.absoluteString == "https://dotquad.app/?ip=203.0.113.7&from=lite")
+        #expect(HandOff.best("Example.com")?.path == "/check/example.com")
+        #expect(HandOff.best("https://example.com/login")?.absoluteString.hasPrefix("https://dotquad.app/link-check/?q=") == true)
+        #expect(HandOff.best("example.com/login")?.absoluteString.hasPrefix("https://dotquad.app/link-check/?q=") == true)
+        #expect(HandOff.best("not a thing") == nil)
+        #expect(HandOff.best("") == nil)
+    }
+}
+
