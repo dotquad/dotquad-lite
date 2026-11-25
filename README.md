@@ -1,6 +1,6 @@
 # Dotquad Lite
 
-A free [Droppy](https://getdroppy.app) Droplet that shows your Mac's public IP, where it appears to be, its network and whether it's a VPN. What it does and what it sends: [droplet/README.md](droplet/README.md).
+A free [Droppy](https://getdroppy.app) Droplet that shows your Mac's public IP, where it appears to be, its network and whether it's a VPN. What it does and what it sends: [droplet/README.md](droplet/README.md). How to use it: the [user guide](https://dotquad.app/apps/lite/).
 
 ## Layout
 

@@ -324,4 +324,92 @@ private let sample = LiteMe(
         #expect(IPChange.localAlert(old: a, new: nil) == nil)
         #expect(IPChange.localAlert(old: nil, new: b) == nil)
     }
+
+    private let wifi = LocalNetwork(interface: "en0", kind: "Wi-Fi", ipv4: "192.168.1.5", ipv6: nil, router: "192.168.1.1", dns: [])
+    private let tunnel = LocalNetwork(interface: "utun4", kind: "VPN", ipv4: "10.8.0.2", ipv6: nil, router: nil, dns: [])
+
+    @Test func tunnels() {
+        #expect(LocalNetwork.isTunnel("utun4") && LocalNetwork.isTunnel("ipsec0") && LocalNetwork.isTunnel("ppp0"))
+        #expect(!LocalNetwork.isTunnel("en0") && !LocalNetwork.isTunnel("bridge0"))
+        #expect(tunnel.symbol == "lock.shield")
+    }
+
+    @Test func tunnelOnAndOff() {
+        let on = IPChange.tunnelAlert(old: wifi, new: tunnel)
+        #expect(on?.title == "VPN is on" && on?.kind == .vpn && on?.short == "VPN on" && on?.isWarning == false)
+        let off = IPChange.tunnelAlert(old: tunnel, new: wifi)
+        #expect(off?.title == "VPN is off" && off?.body == "Back on Wi-Fi · 192.168.1.5" && off?.isWarning == true)
+        #expect(IPChange.tunnelAlert(old: wifi, new: wifi) == nil)
+        #expect(IPChange.tunnelAlert(old: nil, new: tunnel) == nil)
+        #expect(IPChange.tunnelAlert(old: tunnel, new: nil) == nil)
+    }
+
+    @Test func tunnelIsNotALocalChange() {
+        #expect(IPChange.localAlert(old: wifi, new: tunnel) == nil)
+        #expect(IPChange.localAlert(old: tunnel, new: wifi) == nil)
+    }
+
+    @Test func moves() {
+        let otherServer = LocalNetwork(interface: "utun4", kind: "VPN", ipv4: "10.9.0.2", ipv6: nil, router: nil, dns: [])
+        let newDNS = LocalNetwork(interface: "en0", kind: "Wi-Fi", ipv4: "192.168.1.5", ipv6: nil, router: "192.168.1.1", dns: ["1.1.1.1"])
+        #expect(IPChange.moved(from: wifi, to: tunnel))
+        #expect(IPChange.moved(from: tunnel, to: otherServer))
+        #expect(!IPChange.moved(from: wifi, to: newDNS))
+        #expect(!IPChange.moved(from: wifi, to: wifi))
+    }
+
+    @Test func vpnAlertSaysTheNewIP() {
+        let on = IPChange.tunnelAlert(old: wifi, new: tunnel)!
+        let moved = IPChange.withPublic(on, before: me("1.1.1.1", vpn: false), after: me("2.2.2.2", vpn: true))
+        #expect(moved.title == "VPN is on" && moved.body == "1.1.1.1 → 2.2.2.2\nAmsterdam, NL · M247 Europe")
+        let same = IPChange.withPublic(on, before: me("1.1.1.1", vpn: false), after: me("1.1.1.1", vpn: false))
+        #expect(same.body.hasPrefix("Public IP still 1.1.1.1"))
+        #expect(IPChange.withPublic(on, before: nil, after: nil) == on)
+    }
+
+    @Test func tunnelAlreadySaidIt() {
+        let alert = IPChange.publicAlert(old: me("1.1.1.1", vpn: false), new: me("2.2.2.2", vpn: true), vpnAnnounced: true)
+        #expect(alert?.title == "Public IP changed")
+        #expect(IPChange.publicAlert(old: me("1.1.1.1", vpn: false), new: me("1.1.1.1", vpn: true), vpnAnnounced: true) == nil)
+    }
+}
+
+@Suite struct Internet {
+    private let wifi = LocalNetwork(interface: "en0", kind: "Wi-Fi", ipv4: "192.168.1.5", ipv6: nil, router: "192.168.1.1", dns: [])
+
+    @Test func readsApplesPage() {
+        let ok = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>"
+        #expect(InternetCheck.read(response: ok) == .online)
+        #expect(InternetCheck.read(response: "HTTP/1.1 302 Found\r\nLocation: http://login.example/\r\n\r\n") == .signIn)
+        #expect(InternetCheck.read(response: "HTTP/1.1 200 OK\r\n\r\n<html>Hotel Wi-Fi login</html>") == .signIn)
+        #expect(InternetCheck.read(response: nil) == .noInternet)
+        #expect(InternetCheck.read(response: "") == .noInternet)
+    }
+
+    @Test func alerts() {
+        let out = IPChange.internetAlert(old: .online, new: .noInternet, network: wifi, outFor: nil)
+        #expect(out?.title == "No internet" && out?.isWarning == true && out?.kind == .internet)
+        #expect(out?.body == "Connected to Wi-Fi, but nothing loads. Dotquad Lite keeps checking.")
+        #expect(IPChange.internetAlert(old: .online, new: .signIn, network: wifi, outFor: nil)?.title == "Sign in to this network")
+        let back = IPChange.internetAlert(old: .noInternet, new: .online, network: wifi, outFor: 240)
+        #expect(back?.title == "Back online" && back?.body == "The internet was out for 4 min.")
+        // Plain offline is Droppy's to say, and so is coming back from it.
+        #expect(IPChange.internetAlert(old: .online, new: .offline, network: nil, outFor: nil) == nil)
+        #expect(IPChange.internetAlert(old: .offline, new: .online, network: wifi, outFor: 60) == nil)
+        // The first check isn't a change.
+        #expect(IPChange.internetAlert(old: nil, new: .noInternet, network: wifi, outFor: nil) == nil)
+        #expect(IPChange.internetAlert(old: .noInternet, new: .noInternet, network: wifi, outFor: nil) == nil)
+    }
+
+    @Test func outFor() {
+        #expect(LiteText.outFor(20) == "for under a minute")
+        #expect(LiteText.outFor(7200) == "for 2 hr")
+    }
+}
+
+@Suite struct Guide {
+    @Test func links() {
+        #expect(HandOff.guide().absoluteString == "https://dotquad.app/apps/lite/?from=lite")
+        #expect(HandOff.guide("alerts").absoluteString == "https://dotquad.app/apps/lite/?from=lite#alerts")
+    }
 }
