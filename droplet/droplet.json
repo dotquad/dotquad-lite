@@ -20,7 +20,7 @@
     "network-client": "Sends your public IP to dotquad.app to look up its location and network, after you turn lookups on.",
     "menu-bar": "Shows your IP and VPN status as a Command Center tile.",
     "clipboard-write": "Copies your IP when you press Copy.",
-    "notch-banner": "Shows a banner when your public or local IP changes, or your VPN turns off or on, if you turn those alerts on."
+    "notch-banner": "Shows a banner when your public or local IP changes, or your VPN turns on or off, if you turn those alerts on."
   },
   "surfaces": [
     "shelf-widget",

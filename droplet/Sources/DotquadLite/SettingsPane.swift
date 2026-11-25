@@ -10,8 +10,8 @@
 //    domain" in Droppy's search finds it. Nothing about the input is shown
 //    here or sent anywhere but the browser.
 //  - The opt-in switch and a link to dotquad.app.
-//  - Alerts: banners when the public IP changes (or a VPN turns off or on)
-//    and when the local IP changes. Both off until turned on.
+//  - Alerts: banners when the public IP changes, when the VPN turns on or
+//    off, and when the local IP changes. All off until turned on.
 //  - The privacy note.
 //
 //  Droppy draws the page header (icon, name, summary), so this doesn't
@@ -34,7 +34,8 @@ extension DotquadLiteDroplet: SettingsPaneProviding {
             SettingsSearchEntry(title: "Run a network checkup", keywords: ["network", "checkup", "dns", "ipv6", "dotquad"]),
             SettingsSearchEntry(title: "Test my VPN", keywords: ["vpn", "leak", "webrtc", "dns leak", "dotquad"]),
             SettingsSearchEntry(title: "Look up my public IP", keywords: ["ip", "vpn", "privacy", "dotquad"]),
-            SettingsSearchEntry(title: "Alert when my public IP changes", keywords: ["alert", "notify", "ip change", "vpn off", "vpn drop", "dotquad"]),
+            SettingsSearchEntry(title: "Alert when my public IP changes", keywords: ["alert", "notify", "ip change", "dotquad"]),
+            SettingsSearchEntry(title: "Alert when my VPN turns on or off", keywords: ["alert", "notify", "vpn", "vpn off", "vpn drop", "kill switch", "dotquad"]),
             SettingsSearchEntry(title: "Alert when my local IP changes", keywords: ["alert", "notify", "local ip", "dhcp", "dotquad"]),
         ]
     }
@@ -124,11 +125,19 @@ private struct DotquadLiteSettings: View {
                     )
                     .disabled(!droplet.lookupsOn)
                     DropletToggleRow(
+                        title: "Alert when my VPN turns on or off",
+                        subtitle: droplet.lookupsOn
+                            ? LiteText.vpnAlertNote
+                            : "Turn on \"Look up my public IP\" first.",
+                        isOn: droplet.alertsVPNBinding
+                    )
+                    .disabled(!droplet.lookupsOn)
+                    DropletToggleRow(
                         title: "Alert when my local IP changes",
                         subtitle: LiteText.localAlertNote,
                         isOn: droplet.alertsLocalBinding
                     )
-                    if !droplet.bannersGranted && (droplet.alertsPublic || droplet.alertsLocal) {
+                    if !droplet.bannersGranted && (droplet.watchesPublic || droplet.alertsLocal) {
                         DropletStackedRow(title: "Banners are off") {
                             Text("Droppy has banners switched off for Dotquad Lite, so alerts can't show. Turn them on above, under this Droplet's permissions.")
                                 .font(.system(size: 12))

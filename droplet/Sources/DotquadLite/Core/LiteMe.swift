@@ -67,13 +67,16 @@ public enum LiteText {
         "Based on Dotquad's IP data. Other sites may see a different location."
 
     public static let publicAlertNote =
-        "A banner when your public IP changes, or your VPN turns off or on. After each network change Dotquad Lite asks dotquad.app, even with the widget closed."
+        "A banner when your public IP changes. After each network change Dotquad Lite asks dotquad.app, even with the widget closed."
+
+    public static let vpnAlertNote =
+        "A banner when your VPN turns on or off, as dotquad.app sees your public IP. After each network change Dotquad Lite asks dotquad.app, even with the widget closed."
 
     public static let localAlertNote =
         "A banner when your Mac's local IP changes. Read from this Mac; nothing is sent."
 
     public static let privacyNote =
-        "Dotquad Lite asks dotquad.app only while the widget or tile is on screen, after a network change when public IP alerts are on, or when an AI app you allowed in Droppy asks. Your local IP, router and DNS servers are read from this Mac and never sent. Nothing about you is stored, on this Mac or on the server, beyond a count of requests."
+        "Dotquad Lite asks dotquad.app only while the widget or tile is on screen, after a network change when public IP or VPN alerts are on, or when an AI app you allowed in Droppy asks. Your local IP, router and DNS servers are read from this Mac and never sent. Nothing about you is stored, on this Mac or on the server, beyond a count of requests."
 
     /// "Netherlands" for "NL", in the Mac's language. Falls back to the code.
     public static func countryName(_ code: String?, locale: Locale = .current) -> String? {

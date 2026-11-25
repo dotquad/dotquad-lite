@@ -304,6 +304,12 @@ private let sample = LiteMe(
     @Test func vpnOffAndOn() {
         #expect(IPChange.publicAlert(old: me("1.1.1.1", vpn: true), new: me("2.2.2.2", vpn: false))?.title == "VPN is off")
         #expect(IPChange.publicAlert(old: me("1.1.1.1", vpn: false), new: me("2.2.2.2", vpn: true))?.title == "VPN is on")
+        // Each switch alone.
+        let off = (me("1.1.1.1", vpn: true), me("2.2.2.2", vpn: false))
+        #expect(IPChange.publicAlert(old: off.0, new: off.1, ipChanges: false, vpnChanges: true)?.title == "VPN is off")
+        #expect(IPChange.publicAlert(old: off.0, new: off.1, ipChanges: true, vpnChanges: false)?.title == "Public IP changed")
+        #expect(IPChange.publicAlert(old: me("1.1.1.1", vpn: false), new: me("2.2.2.2", vpn: false), ipChanges: false, vpnChanges: true) == nil)
+        #expect(IPChange.publicAlert(old: off.0, new: off.1, ipChanges: false, vpnChanges: false) == nil)
         // Lists finishing loading on the same address isn't news.
         #expect(IPChange.publicAlert(old: me("1.1.1.1", vpn: nil), new: me("1.1.1.1", vpn: false)) == nil)
     }

@@ -26,21 +26,28 @@ public struct IPAlert: Equatable, Sendable {
 }
 
 public enum IPChange {
-    /// The alert for a new public answer, or nil when nothing worth saying
-    /// changed. A VPN going off is said first: it's the one people care about.
-    public static func publicAlert(old: LiteMe?, new: LiteMe, locale: Locale = .current) -> IPAlert? {
+    /// The alert for a new public answer, or nil when nothing the user asked
+    /// about changed. `ipChanges` and `vpnChanges` are their two switches.
+    /// When the VPN turned off or on and the user asked about that, the VPN
+    /// is what the alert says: it's the one people care about.
+    public static func publicAlert(
+        old: LiteMe?,
+        new: LiteMe,
+        ipChanges: Bool = true,
+        vpnChanges: Bool = true
+    ) -> IPAlert? {
         guard let old, old.ip != new.ip || old.vpn != new.vpn else { return nil }
         let details = [LiteText.shortPlace(new), new.owner].compactMap { $0 }.joined(separator: " · ")
         let move = old.ip == new.ip ? new.ip : "\(old.ip) → \(new.ip)"
         let body = details.isEmpty ? move : "\(move)\n\(details)"
 
-        if old.vpn == true && new.vpn == false {
+        if vpnChanges, old.vpn == true, new.vpn == false {
             return IPAlert(kind: .publicIP, title: "VPN is off", body: body, symbol: "lock.open")
         }
-        if old.vpn != true && new.vpn == true {
+        if vpnChanges, old.vpn != true, new.vpn == true {
             return IPAlert(kind: .publicIP, title: "VPN is on", body: body, symbol: "lock.shield")
         }
-        guard old.ip != new.ip else { return nil }
+        guard ipChanges, old.ip != new.ip else { return nil }
         return IPAlert(kind: .publicIP, title: "Public IP changed", body: body, symbol: "network")
     }
 

@@ -36,6 +36,7 @@ public final class DotquadLiteDroplet: NSObject, ObservableObject, Droplet {
     static let lookupsOnKey = "lookupsOn"
     static let alertPublicKey = "alertPublicIPChange"
     static let alertLocalKey = "alertLocalIPChange"
+    static let alertVPNKey = "alertVPNChange"
 
     private(set) var host: DropletHost?
     private let client = LiteClient(version: DotquadLiteDroplet.version)
@@ -73,7 +74,7 @@ public final class DotquadLiteDroplet: NSObject, ObservableObject, Droplet {
         startPathMonitor()
         refreshLocalNetwork()
         // With public alerts on, a first answer to compare the next one with.
-        if alertsPublic { refreshIfAllowed() }
+        if watchesPublic { refreshIfAllowed() }
     }
 
     public func deactivate() {
@@ -114,11 +115,20 @@ public final class DotquadLiteDroplet: NSObject, ObservableObject, Droplet {
 
     // MARK: Alerts
 
-    /// Banner when the public IP changes, or a VPN turns off or on. Off until
-    /// the user turns it on, and only with lookups on.
+    /// Banner when the public IP changes. Off until the user turns it on,
+    /// and only with lookups on.
     var alertsPublic: Bool {
         host?.preferences.value(forKey: Self.alertPublicKey, default: false) ?? false
     }
+
+    /// Banner when the VPN turns off or on, as dotquad.app sees the public
+    /// IP. Off until the user turns it on, and only with lookups on.
+    var alertsVPN: Bool {
+        host?.preferences.value(forKey: Self.alertVPNKey, default: false) ?? false
+    }
+
+    /// Either public alert: both need an answer after each network change.
+    var watchesPublic: Bool { alertsPublic || alertsVPN }
 
     /// Banner when the local IP changes. Read from the Mac; sends nothing.
     var alertsLocal: Bool {
@@ -127,6 +137,10 @@ public final class DotquadLiteDroplet: NSObject, ObservableObject, Droplet {
 
     var alertsPublicBinding: Binding<Bool> {
         Binding(get: { self.alertsPublic }, set: { self.setPreference($0, Self.alertPublicKey) })
+    }
+
+    var alertsVPNBinding: Binding<Bool> {
+        Binding(get: { self.alertsVPN }, set: { self.setPreference($0, Self.alertVPNKey) })
     }
 
     var alertsLocalBinding: Binding<Bool> {
@@ -140,7 +154,7 @@ public final class DotquadLiteDroplet: NSObject, ObservableObject, Droplet {
         objectWillChange.send()
         // Turned on with nothing to compare yet: get a first answer now, so
         // the next change has something to be compared with.
-        if on, key == Self.alertPublicKey, result == nil { refreshIfAllowed() }
+        if on, key != Self.alertLocalKey, result == nil { refreshIfAllowed() }
     }
 
     private func post(_ alert: IPAlert) {
@@ -248,7 +262,10 @@ public final class DotquadLiteDroplet: NSObject, ObservableObject, Droplet {
             let me = try await task.value
             // Switched off while the request ran: keep nothing.
             guard lookupsOn else { throw CancellationError() }
-            if alertsPublic, let alert = IPChange.publicAlert(old: result, new: me) { post(alert) }
+            if watchesPublic,
+               let alert = IPChange.publicAlert(old: result, new: me, ipChanges: alertsPublic, vpnChanges: alertsVPN) {
+                post(alert)
+            }
             result = me
             updatedAt = Date()
             lastError = nil
@@ -304,12 +321,12 @@ public final class DotquadLiteDroplet: NSObject, ObservableObject, Droplet {
         // Nobody looking and no alert to give: the next look fetches, since
         // the answer is now stale. With public alerts on, ask anyway: that's
         // what the user turned them on for.
-        guard visibleViews > 0 || alertsPublic else { return }
+        guard visibleViews > 0 || watchesPublic else { return }
         networkTask?.cancel()
         let wait = RefreshPolicy.jitter()
         networkTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(wait))
-            guard !Task.isCancelled, let self, self.visibleViews > 0 || self.alertsPublic else { return }
+            guard !Task.isCancelled, let self, self.visibleViews > 0 || self.watchesPublic else { return }
             self.refreshIfAllowed()
         }
     }
