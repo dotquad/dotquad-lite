@@ -67,16 +67,81 @@ public enum LiteText {
         "Based on Dotquad's IP data. Other sites may see a different location."
 
     public static let publicAlertNote =
-        "A banner when your public IP changes. After each network change Dotquad Lite asks dotquad.app, even with the widget closed."
+        "After each network change Dotquad Lite asks dotquad.app, even with the widget closed."
 
     public static let vpnAlertNote =
-        "A banner when your VPN turns on or off, as dotquad.app sees your public IP. After each network change Dotquad Lite asks dotquad.app, even with the widget closed."
+        "When your Mac starts or stops sending everything through a VPN, or dotquad.app sees your public IP become a VPN's or stop being one. After each network change Dotquad Lite asks dotquad.app, even with the widget closed."
+
+    public static let vpnAlertLocalNote =
+        "When your Mac starts or stops sending everything through a VPN. Read from this Mac; nothing is sent. Turn on \"Look up my public IP\" to also catch VPNs dotquad.app recognizes."
 
     public static let localAlertNote =
-        "A banner when your Mac's local IP changes. Read from this Mac; nothing is sent."
+        "Read from this Mac; nothing is sent."
+
+    public static let activityNote =
+        "While your VPN is on, a shield and the country your IP appears in stay in the island, like Now Playing. Click it to open My IP. Read from this Mac; with \"Look up my public IP\" on, it also shows VPNs dotquad.app recognizes."
+
+    /// What Settings says about the VPN live activity. `seat` is what Droppy
+    /// last said: "compact", "secondary", a reason it isn't showing, or nil.
+    public static func activityStatus(active: Bool, published: Bool, seat: String?) -> String {
+        guard active else {
+            return "Nothing to show right now. It appears while your VPN is on, or while the internet is out, for the ones turned on above."
+        }
+        guard published else { return "Turning the activity on now." }
+        switch seat {
+        case "compact"?: return "Showing in the island."
+        case "secondary"?: return "Showing in the pill beside Droppy's own activity."
+        case "surfaceSuppressed"?, "surface-suppressed"?:
+            return "Waiting: Droppy has the island for something else (music, a timer, a HUD, a meeting or the open shelf). It comes back when that's done, or turn on Show beside Droppy's activities."
+        case "outranked"?: return "Waiting: another Droplet's activity has the island."
+        case "display-ineligible"?: return "Waiting: Droppy doesn't show activities on this display. Check Live Activities, Show activities on, in Droppy Settings."
+        case "user-disabled"?: return "Droppy has live activities turned off for Dotquad Lite."
+        case "idle"?: return "Not showing."
+        case "duplicatesBuiltIn"?, "duplicates-built-in"?: return "Waiting: one of Droppy's own activities is showing."
+        case let reason?: return "Droppy isn't showing it (\(reason))."
+        case nil: return "Droppy hasn't answered yet; close the shelf to see it."
+        }
+    }
+
+    public static let internetAlertNote =
+        "When Wi-Fi or Ethernet is connected but nothing loads, or a network wants you to sign in, and Back online when it works again. To check, Dotquad Lite asks captive.apple.com, the page macOS itself asks, after network changes and every 2 minutes; nothing about you is sent. For a Mac that's fully offline, turn on No internet in Droppy's Live Activities settings."
+
+    public static let internetActivityNote =
+        "While the internet is out, a Wi-Fi warning stays in the island until it's back, ahead of the VPN. Checks captive.apple.com, like the alert."
+
+    /// Under the "Show alerts as" choice: what the two are, in Droppy's words.
+    public static let alertStyleNote =
+        "A HUD shows in the island for a few seconds, like Caps Lock, then goes. A notification waits in Droppy's banners until you see it, and follows Focus and Show notifications. If the one you pick can't show, Dotquad Lite uses the other."
+
+    /// Why a notification didn't show: "not-granted" or "refused".
+    public static func notificationIssue(_ issue: String) -> String {
+        issue == "not-granted"
+            ? "Notifications: Droppy hasn't given Dotquad Lite permission to post them. Turn it on in this Droplet's permissions above."
+            : "Notifications: Droppy has permission on but said no. Its Show notifications switch for Dotquad Lite may be off, a Focus may be on, or Silence during Focus may be holding banners."
+    }
+
+    /// Why a HUD didn't show: "not-granted" or "refused".
+    public static func hudIssue(_ issue: String) -> String {
+        issue == "not-granted"
+            ? "HUD: Droppy hasn't given Dotquad Lite permission to show one. Turn it on in this Droplet's permissions above."
+            : "HUD: Droppy said no. Close the shelf and try again."
+    }
+
+    /// What Settings says about the last alert: "hud", "notification" or "refused",
+    /// and whether it went where the user chose.
+    public static func alertOutcome(_ outcome: String, asChosen: Bool) -> String {
+        switch outcome {
+        case "hud":
+            return asChosen ? "Shown as a HUD in the island." : "Shown as a HUD, because Droppy didn't take the notification."
+        case "notification":
+            return asChosen ? "Shown as a notification." : "Shown as a notification, because the island was busy or the shelf was open."
+        default:
+            return "Droppy didn't show it. Check that HUDs and notifications are allowed for Dotquad Lite in its permissions above, that Show notifications is on, and that no Focus is on. Close the shelf and try again."
+        }
+    }
 
     public static let privacyNote =
-        "Dotquad Lite asks dotquad.app only while the widget or tile is on screen, after a network change when public IP or VPN alerts are on, or when an AI app you allowed in Droppy asks. Your local IP, router and DNS servers are read from this Mac and never sent. Nothing about you is stored, on this Mac or on the server, beyond a count of requests."
+        "Dotquad Lite asks dotquad.app only while the widget or tile is on screen, after a network change when public IP or VPN alerts are on, or when an AI app you allowed in Droppy asks. Your local IP, router and DNS servers are read from this Mac and never sent. With a No internet switch on, it asks captive.apple.com, the page macOS uses, whether the internet works; that sends nothing about you. Nothing about you is stored, on this Mac or on the server, beyond a count of requests."
 
     /// "Netherlands" for "NL", in the Mac's language. Falls back to the code.
     public static func countryName(_ code: String?, locale: Locale = .current) -> String? {

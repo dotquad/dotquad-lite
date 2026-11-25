@@ -17,6 +17,14 @@ public enum HandOff {
     /// The home page.
     public static var home: URL { url("/", []) }
 
+    /// The user guide, at one of its sections ("alerts", "troubleshooting")
+    /// or the top.
+    public static func guide(_ section: String? = nil) -> URL {
+        var parts = URLComponents(url: url("/apps/lite/", []), resolvingAgainstBaseURL: false)!
+        parts.fragment = section
+        return parts.url!
+    }
+
     /// The IP lookup on the home page, for this Mac's own address.
     public static func ipLookup(_ ip: String) -> URL? {
         guard isIPAddress(ip) else { return nil }

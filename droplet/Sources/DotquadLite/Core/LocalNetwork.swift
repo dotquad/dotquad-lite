@@ -38,12 +38,23 @@ public struct LocalNetwork: Codable, Equatable, Sendable {
     /// The local address to show and copy: IPv4 first.
     public var address: String? { ipv4 ?? ipv6 }
 
+    /// Whether the Mac sends everything through a tunnel: the primary
+    /// interface is a VPN's (utun, ipsec, ppp). A VPN that only carries some
+    /// traffic leaves the primary interface alone, so it isn't seen here.
+    public var isTunnel: Bool { Self.isTunnel(interface) }
+
+    /// Whether a BSD name is a tunnel's.
+    public static func isTunnel(_ bsd: String) -> Bool {
+        ["utun", "ipsec", "ppp", "tun", "tap", "wg"].contains { bsd.hasPrefix($0) }
+    }
+
     /// An SF Symbol for the interface.
     public var symbol: String {
         switch kind?.lowercased() {
         case let k? where k.contains("wi-fi") || k.contains("wifi") || k.contains("airport"): return "wifi"
         case let k? where k.contains("ethernet") || k.contains("thunderbolt") || k.contains("usb"): return "cable.connector"
         case let k? where k.contains("iphone"): return "iphone"
+        case "vpn": return "lock.shield"
         default: return "network"
         }
     }
@@ -71,7 +82,7 @@ public extension LocalNetwork {
         let addresses = interfaceAddresses()[primary] ?? []
         return LocalNetwork(
             interface: primary,
-            kind: interfaceKinds()[primary],
+            kind: interfaceKinds()[primary] ?? (isTunnel(primary) ? "VPN" : nil),
             ipv4: pickIPv4(addresses),
             ipv6: pickIPv6(addresses),
             router: (ipv4State?["Router"] as? String) ?? (ipv6State?["Router"] as? String).flatMap(Self.usefulIPv6),
