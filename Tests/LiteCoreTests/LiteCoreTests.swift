@@ -16,10 +16,10 @@ private let sample = LiteMe(
 
 @Suite struct Decoding {
     @Test func decodesTheLiveShape() throws {
-        let body = #"{"ip":"135.148.94.69","city":"Torrance","country":"US","asn":16276,"owner":"OVH SAS","vpn":false,"hosting":true}"#
+        let body = #"{"ip":"203.0.113.42","city":"Portland","country":"US","asn":64500,"owner":"Example Fiber","vpn":false,"hosting":false}"#
         let me = try LiteClient.parse(data: Data(body.utf8), response: response(200), now: now)
-        #expect(me == LiteMe(ip: "135.148.94.69", city: "Torrance", country: "US", asn: 16276,
-                             owner: "OVH SAS", vpn: false, hosting: true))
+        #expect(me == LiteMe(ip: "203.0.113.42", city: "Portland", country: "US", asn: 64500,
+                             owner: "Example Fiber", vpn: false, hosting: false))
     }
 
     @Test func decodesNulls() throws {
